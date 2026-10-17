@@ -42,6 +42,11 @@ public abstract class StoryEvent {
         return characterPath;
     }
 
+    // New: optional evidence path for events that may show an evidence image
+    public String getEvidencePath() {
+        return null;
+    }
+
     public abstract String getPrompt();
 
     public abstract String[] getChoices();
@@ -51,4 +56,3 @@ public abstract class StoryEvent {
 
     public abstract boolean isChoiceEvent();
 }
-

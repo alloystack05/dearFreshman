@@ -21,8 +21,7 @@ public class GameRepository {
         String statsSql = """
                 INSERT INTO player_stats
                 (save_id, energy, friendship, reputation,
-                 academics, suspicion, gino_trust, z_trust,
-                 obet_trust, william_suspicion,
+                 academics, suspicion, gino_trust, z_trust, obet_trust, william_suspicion,
                  programming_score, database_score, history_score, quiz_answered)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
@@ -132,6 +131,7 @@ public class GameRepository {
 
                 Player player = new Player(rs.getString("player_name"));
 
+                // Restore numeric progress including all three subject scores.
                 player.restoreProgress(
                         rs.getInt("energy"),
                         rs.getInt("friendship"),
@@ -139,18 +139,43 @@ public class GameRepository {
                         rs.getInt("academics"),
                         rs.getInt("suspicion"),
                         rs.getInt("programming_score"),
+                        rs.getInt("database_score"),
+                        rs.getInt("history_score"),
                         rs.getInt("quiz_answered")
                 );
 
-                // Restore NPC trust matrix delta adjustments
-                int ginoDelta = rs.getInt("gino_trust") - 50;
-                int zDelta = rs.getInt("z_trust") - 50;
-                int obetDelta = rs.getInt("obet_trust") - 50;
-                int williamDelta = rs.getInt("william_suspicion");
+                // Restore NPC trust values as absolute numbers.
+                int ginoTrust = rs.getInt("gino_trust");
+                int zTrust = rs.getInt("z_trust");
+                int obetTrust = rs.getInt("obet_trust");
+                int williamSuspicion = rs.getInt("william_suspicion");
 
-                player.adjustNpcTrust(ginoDelta, zDelta, obetDelta, williamDelta);
+                player.restoreNpcTrust(ginoTrust, zTrust, obetTrust, williamSuspicion);
 
                 return player;
+            }
+        }
+    }
+
+    /**
+     * Load basic saved game metadata (current_event_index, game_day, game_minutes)
+     * so the app can restore play position and time.
+     */
+    public int[] loadSaveMetadata(int saveId) throws SQLException {
+        String sql = "SELECT current_event_index, game_day, game_minutes FROM game_saves WHERE save_id = ?";
+
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, saveId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) {
+                    return new int[]{0, 1, 8 * 60}; // defaults
+                }
+                return new int[]{
+                        rs.getInt("current_event_index"),
+                        rs.getInt("game_day"),
+                        rs.getInt("game_minutes")
+                };
             }
         }
     }

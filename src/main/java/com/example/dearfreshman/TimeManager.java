@@ -98,6 +98,21 @@ public class TimeManager {
                 + getPeriodName();
     }
 
+    /**
+     * Restore saved time state. day must be >= 1 and minutesOfDay in [0, 1439].
+     */
+    public void restoreState(int day, int minutesOfDay) {
+        if (day < 1) {
+            throw new IllegalArgumentException("Day must be at least 1.");
+        }
+        if (minutesOfDay < 0 || minutesOfDay >= MINUTES_PER_DAY) {
+            throw new IllegalArgumentException("Minutes of day must be between 0 and 1439.");
+        }
+
+        this.day = day;
+        this.minutesOfDay = minutesOfDay;
+    }
+
     public void advanceMinutes(int minutes) {
         if (minutes < 0) {
             throw new IllegalArgumentException(

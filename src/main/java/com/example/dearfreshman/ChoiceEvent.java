@@ -6,6 +6,7 @@ public class ChoiceEvent extends StoryEvent {
     private final String[] choices;
     private final String[] outcomes;
     private final int[][] statChanges;
+    private final String evidencePath;
 
     public ChoiceEvent(
             String title,
@@ -16,7 +17,8 @@ public class ChoiceEvent extends StoryEvent {
             String[] outcomes,
             int[][] statChanges,
             String backgroundPath,
-            String characterPath, String s) {
+            String characterPath,
+            String evidencePath) {
 
         super(
                 title,
@@ -45,11 +47,11 @@ public class ChoiceEvent extends StoryEvent {
         this.prompt = prompt;
         this.choices = choices.clone();
         this.outcomes = outcomes.clone();
-
         this.statChanges = new int[][]{
                 statChanges[0].clone(),
                 statChanges[1].clone()
         };
+        this.evidencePath = evidencePath;
     }
 
     @Override
@@ -78,6 +80,7 @@ public class ChoiceEvent extends StoryEvent {
 
         int[] changes = statChanges[choiceIndex];
 
+        // Apply stat changes once. Do not double-apply energy.
         player.applyChanges(
                 changes[0],
                 changes[1],
@@ -86,16 +89,16 @@ public class ChoiceEvent extends StoryEvent {
                 changes[4]
         );
 
-        // If a choice specifically restores energy (e.g. taking a nap with positive energy value)
-        if (changes[0] > 0) {
-            player.restoreEnergy(changes[0]);
-        }
-
         return outcomes[choiceIndex];
     }
 
     @Override
     public boolean isChoiceEvent() {
         return true;
+    }
+
+    @Override
+    public String getEvidencePath() {
+        return evidencePath;
     }
 }

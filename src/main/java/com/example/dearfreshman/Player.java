@@ -165,6 +165,8 @@ public class Player {
             int academics,
             int suspicion,
             int programmingScore,
+            int databaseScore,
+            int historyScore,
             int quizAnswered) {
 
         this.energy = clamp(energy);
@@ -176,7 +178,23 @@ public class Player {
         this.programmingScore =
                 Math.max(0, Math.min(5, programmingScore));
 
+        this.databaseScore =
+                Math.max(0, Math.min(5, databaseScore));
+
+        this.historyScore =
+                Math.max(0, Math.min(5, historyScore));
+
         this.quizAnswered =
                 Math.max(0, Math.min(15, quizAnswered));
+    }
+
+    /**
+     * Restore NPC trust values directly (absolute values).
+     */
+    public void restoreNpcTrust(int ginoTrust, int zTrust, int obetTrust, int williamSuspicion) {
+        this.ginoTrust = clamp(ginoTrust);
+        this.zTrust = clamp(zTrust);
+        this.obetTrust = clamp(obetTrust);
+        this.williamSuspicion = clamp(williamSuspicion);
     }
 }
